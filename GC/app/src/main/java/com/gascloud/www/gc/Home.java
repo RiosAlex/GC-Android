@@ -89,6 +89,10 @@ public class Home extends AppCompatActivity
             SettingsFragment settingsFragment = new SettingsFragment();
             manager.beginTransaction().replace(R.id.homecontent, settingsFragment, settingsFragment.getTag()).commit();
             title = "Ajustes";
+        } else if (id == R.id.nav_tips) {
+            TipsFragment tipsFragment = new TipsFragment();
+            manager.beginTransaction().replace(R.id.homecontent, tipsFragment, tipsFragment.getTag()).commit();
+            title = "Tips";
         } else if (id == R.id.nav_comp) {
             ShareFragment shareFragment = new ShareFragment();
             manager.beginTransaction().replace(R.id.homecontent, shareFragment, shareFragment.getTag()).commit();

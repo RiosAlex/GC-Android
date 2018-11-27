@@ -21,6 +21,10 @@
     <item android:title="Contacto">
         <menu>
             <item
+                android:id="@+id/nav_tips"
+                android:icon="@drawable/ic_list"
+                android:title="Tips" />
+            <item
                 android:id="@+id/nav_comp"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Compartir" />
