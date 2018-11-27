@@ -14,6 +14,16 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
+import com.google.android.gms.common.api.Api;
+
+import java.io.IOException;
+
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class QRCodeFragment extends Fragment implements QRCodeReaderView.OnQRCodeReadListener{
 
@@ -22,7 +32,7 @@ public class QRCodeFragment extends Fragment implements QRCodeReaderView.OnQRCod
     }
 
     private FragmentManager manager;
-    private Button save;
+    private CircularProgressButton save;
     private QRCodeReaderView qrCodeReaderView;
 
     @Override
@@ -32,7 +42,7 @@ public class QRCodeFragment extends Fragment implements QRCodeReaderView.OnQRCod
         View view = inflater.inflate(R.layout.fragment_qrcode, container, false);
         manager = getFragmentManager();
 
-        save = (Button)view.findViewById(R.id.btnQRCodeSave);
+        save = (CircularProgressButton) view.findViewById(R.id.btnQRCodeSave);
 
         qrCodeReaderView = (QRCodeReaderView)view.findViewById(R.id.qrdecoderview);
         qrCodeReaderView.setOnQRCodeReadListener(this);
@@ -55,6 +65,7 @@ public class QRCodeFragment extends Fragment implements QRCodeReaderView.OnQRCod
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                save.startAnimation();
                 NetworkFragment networkFragment = new NetworkFragment();
                 manager.beginTransaction().setCustomAnimations( R.anim.slide_up, 0, 0, R.anim.slide_down).replace(R.id.container, networkFragment).commit();
             }
@@ -65,10 +76,39 @@ public class QRCodeFragment extends Fragment implements QRCodeReaderView.OnQRCod
 
     @Override
     public void onQRCodeRead(String text, PointF[] points) {
-        Uri uri = Uri.parse(text.toLowerCase());
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
-        Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+       /* Retrofit retrofit = new Retrofit.Builder().baseUrl("http://gascloud.mysoluctions.com/").build();
+
+        com.gascloud.www.gc.Api api = retrofit.create(com.gascloud.www.gc.Api.class);
+
+        api.getPost().enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    Toast.makeText(getContext(), response.body().string(), Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });*/
+
+        //Uri uri = Uri.parse(text.toLowerCase());
+        //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        //startActivity(intent);
+        //Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+
+        if (!text.equals("Nada")){
+            Toast.makeText(getContext(), "Dispositivo encontrado.", Toast.LENGTH_SHORT).show();
+            NetworkFragment networkFragment = new NetworkFragment();
+            manager.beginTransaction().setCustomAnimations( R.anim.slide_up, 0, 0, R.anim.slide_down).replace(R.id.container, networkFragment).commit();
+        } else {
+            Toast.makeText(getContext(), "Acceso denegado, intente de nuevo.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override

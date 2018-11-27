@@ -4,6 +4,7 @@ package com.gascloud.www.gc;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +35,7 @@ public class NetworkFragment extends Fragment {
     }
 
     private Button save;
+    private Button network;
     public FirebaseFirestore db;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
@@ -44,6 +48,7 @@ public class NetworkFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_network, container, false);
 
         save = (Button)view.findViewById(R.id.btnNetworkSave);
+        network = (Button) view.findViewById(R.id.btnNetwork);
         progressDialog = new ProgressDialog(getContext());
         db = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
@@ -53,6 +58,13 @@ public class NetworkFragment extends Fragment {
             public void onClick(View v) {
                 String user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
                 desvirgin(user);
+            }
+        });
+
+        network.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
             }
         });
 

@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -24,6 +25,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton;
 
 
 /**
@@ -37,7 +40,7 @@ public class PhoneFragment extends Fragment {
     }
 
     private FragmentManager manager;
-    private Button save;
+    private CircularProgressButton save;
     private ImageView imgPhoto;
     private TextView txtName;
     private EditText phone;
@@ -51,7 +54,7 @@ public class PhoneFragment extends Fragment {
         manager = getFragmentManager();
         db = FirebaseFirestore.getInstance();
 
-        save = (Button)view.findViewById(R.id.btnPhoneSave);
+        save = (CircularProgressButton) view.findViewById(R.id.btnPhoneSave);
         imgPhoto = (ImageView)view.findViewById(R.id.profilePhotoConfig);
         txtName = (TextView)view.findViewById(R.id.profileNameConfig);
         phone = (EditText)view.findViewById(R.id.txtPhoneConfig);
@@ -68,19 +71,26 @@ public class PhoneFragment extends Fragment {
             save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String phoneNumber = phone.getText().toString();
-                    final Map<String, Object> addUserMap = new HashMap<>();
-                    addUserMap.put("name", name);
-                    addUserMap.put("photoUrl", String.valueOf(photo));
-                    addUserMap.put("phone", phoneNumber);
 
-                    db.collection("Users").document(user.getEmail()).update(addUserMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            QRCodeFragment qrCodeFragment = new QRCodeFragment();
-                            manager.beginTransaction().setCustomAnimations( R.anim.slide_up, 0, 0, R.anim.slide_down).replace(R.id.container, qrCodeFragment).commit();
-                        }
-                    });
+                    if (phone.getText().toString().isEmpty()){
+                        Toast.makeText(getContext(), "Número de celular obligatorio.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        save.startAnimation();
+                        String phoneNumber = phone.getText().toString();
+                        final Map<String, Object> addUserMap = new HashMap<>();
+                        addUserMap.put("name", name);
+                        addUserMap.put("photoUrl", String.valueOf(photo));
+                        addUserMap.put("phone", phoneNumber);
+                        addUserMap.put("device", "helium8AD6");
+
+                        db.collection("Users").document(user.getEmail()).update(addUserMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                QRCodeFragment qrCodeFragment = new QRCodeFragment();
+                                manager.beginTransaction().setCustomAnimations(R.anim.slide_up, 0, 0, R.anim.slide_down).replace(R.id.container, qrCodeFragment).commit();
+                            }
+                        });
+                    }
 
                 }
             });
