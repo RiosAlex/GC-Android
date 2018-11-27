@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_panel"
+            android:icon="@drawable/ic_data_usage"
+            android:title="Panel de control" />
+        <item
+            android:id="@+id/nav_stat"
+            android:icon="@drawable/ic_multiline_chart"
+            android:title="Estadísticas" />
+        <item
+            android:id="@+id/nav_config"
+            android:icon="@drawable/ic_settings"
+            android:title="Ajustes" />
+    </group>
+
+    <item android:title="Contacto">
+        <menu>
+            <item
+                android:id="@+id/nav_comp"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Compartir" />
+        </menu>
+    </item>
+
+</menu>
