@@ -25,18 +25,11 @@
         android:id="@+id/profileNameFacebook"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="Nombre"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="#ffffff" />
-
-    <TextView
-        android:id="@+id/profileNacionalityFacebook"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nacionalidad"
-        android:textColor="#ffffff"
-        android:layout_gravity="center"/>
 
 </LinearLayout>

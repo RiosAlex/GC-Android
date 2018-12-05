@@ -1,12 +1,18 @@
 package com.gascloud.www.gc;
 
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,14 +22,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +63,21 @@ public class Home extends AppCompatActivity
 
         DashboardFragment dashboardFragment = new DashboardFragment();
         manager.beginTransaction().replace(R.id.homecontent, dashboardFragment, dashboardFragment.getTag()).commit();
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            final String name = user.getDisplayName();
+            final Uri photo = user.getPhotoUrl();
+
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            View hView =  navigationView.getHeaderView(0);
+            final TextView nav_user = (TextView)hView.findViewById(R.id.profileNameFacebook);
+            final ImageView nav_picture = (ImageView) hView.findViewById(R.id.profilePhotoFacebook);
+
+            nav_user.setText(name);
+            Picasso.get().load(photo).into(nav_picture);
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

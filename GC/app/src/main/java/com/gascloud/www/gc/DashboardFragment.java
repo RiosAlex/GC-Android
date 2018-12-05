@@ -1,11 +1,17 @@
 package com.gascloud.www.gc;
 
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
@@ -23,6 +29,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -44,10 +55,9 @@ public class DashboardFragment extends Fragment {
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
     private CircularProgressView progressGas, progressFuga;
-    private SeekBar progressTemperatura;
     private TextView txtGas, txtFuga, txtTemperatura, txtTextoFuga;
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    private DatabaseReference mLevelsDatabase;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,16 +67,15 @@ public class DashboardFragment extends Fragment {
 
         progressGas = (CircularProgressView)view.findViewById(R.id.progressNivel);
         progressFuga = (CircularProgressView)view.findViewById(R.id.progressFugas);
-        progressTemperatura = (SeekBar) view.findViewById(R.id.seekBarTemperatura);
 
         txtGas = (TextView) view.findViewById(R.id.txtNivel);
         txtFuga = (TextView) view.findViewById(R.id.txtFugas);
-        txtTemperatura = (TextView) view.findViewById(R.id.txtTemperatura);
+        txtTemperatura = (TextView) view.findViewById(R.id.txtTemp);
         txtTextoFuga = (TextView)view.findViewById(R.id.txtTextoFugas);
 
         swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipeDashboard);
 
-        progressTemperatura.setEnabled(false);
+        mLevelsDatabase = FirebaseDatabase.getInstance().getReference();
 
         progressDialog = new ProgressDialog(getContext());
         db = FirebaseFirestore.getInstance();
@@ -90,42 +99,48 @@ public class DashboardFragment extends Fragment {
     }
 
     private void showLevels(){
-        db.collection("Devices").document("helium8AD6").collection("Gascloud").document("levels").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mLevelsDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String temp = dataSnapshot.child("Temp").getValue().toString();
+                    String tanque = String.valueOf(dataSnapshot.child("tanque").getValue().toString());
+                    int totalTank = Integer.parseInt(tanque)/10;
 
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (totalTank <= 0){
+                        txtGas.setText("0 %");
+                        progressGas.setProgress(0);
 
-                    if (documentSnapshot.exists() && documentSnapshot != null) {
-                        String gas = String.valueOf(documentSnapshot.get("gaslevel"));
-                        String fuga = String.valueOf(documentSnapshot.get("leaklevel"));
-                        String temperatura = String.valueOf(documentSnapshot.get("temperaturelevel"));
+                        NotificationCompat.Builder notification = new NotificationCompat.Builder(getContext())
+                                .setSmallIcon(R.mipmap.logo)
+                                .setContentTitle("¡Notificación de alerta!")
+                                .setContentText("Se acabo el gas :(")
+                                .setAutoCancel(true)
+                                .setWhen(System.currentTimeMillis());
 
-                        progressGas.setProgress(Integer.parseInt(gas));
-                        progressFuga.setProgress(Integer.parseInt(fuga));
-                        progressTemperatura.setProgress(Integer.parseInt(temperatura));
+                        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
-                        txtGas.setText(gas + " %");
-                        txtFuga.setText(fuga + " %");
-                        if (Integer.parseInt(fuga) == 0){
-                            txtTextoFuga.setText("¡No se detectaron fugas!");
-                        } else if (Integer.parseInt(fuga) > 0){
-                            txtTextoFuga.setText("¡Alerta!, posibilidades de fuga de gas: " + fuga + " %");
-                        }
-                        txtTemperatura.setText(temperatura + "° C");
+                        notificationManager.notify(0, notification.build());
 
-                        cancelRefresh();
+                    } else if (totalTank > 0 && totalTank <= 99){
+                        txtGas.setText(String.valueOf(totalTank) + " %");
+                        progressGas.setProgress(totalTank);
+                    } else if (totalTank >= 100){
+                        txtGas.setText("100 %");
+                        progressGas.setProgress(100);
                     }
 
-                }
+                    txtTemperatura.setText(temp);
+                    cancelRefresh();
+
             }
-        }).addOnFailureListener(new OnFailureListener() {
+
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Ocurrio un error al cargar información.", Toast.LENGTH_SHORT).show();
                 cancelRefresh();
             }
         });
+
     }
 
     private void validate(final String user){

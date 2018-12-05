@@ -61,4 +61,5 @@ dependencies {
         transitive = true
     }
 
+    implementation 'com.google.firebase:firebase-database:15.0.0'
 }
