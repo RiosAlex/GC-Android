@@ -58,6 +58,7 @@ public class DashboardFragment extends Fragment {
     private TextView txtGas, txtFuga, txtTemperatura, txtTextoFuga;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DatabaseReference mLevelsDatabase;
+    private Uri mSound;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +68,8 @@ public class DashboardFragment extends Fragment {
 
         progressGas = (CircularProgressView)view.findViewById(R.id.progressNivel);
         progressFuga = (CircularProgressView)view.findViewById(R.id.progressFugas);
+
+        mSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         txtGas = (TextView) view.findViewById(R.id.txtNivel);
         txtFuga = (TextView) view.findViewById(R.id.txtFugas);
@@ -110,16 +113,18 @@ public class DashboardFragment extends Fragment {
                         txtGas.setText("0 %");
                         progressGas.setProgress(0);
 
-                        NotificationCompat.Builder notification = new NotificationCompat.Builder(getContext())
+                        Notification notification = new NotificationCompat.Builder(getActivity())
                                 .setSmallIcon(R.mipmap.logo)
+                                .setLargeIcon(BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.logo))
                                 .setContentTitle("¡Notificación de alerta!")
                                 .setContentText("Se acabo el gas :(")
                                 .setAutoCancel(true)
-                                .setWhen(System.currentTimeMillis());
+                                .setSound(mSound)
+                                .setWhen(System.currentTimeMillis()).build();
 
                         NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
-                        notificationManager.notify(0, notification.build());
+                        notificationManager.notify(0, notification);
 
                     } else if (totalTank > 0 && totalTank <= 99){
                         txtGas.setText(String.valueOf(totalTank) + " %");
